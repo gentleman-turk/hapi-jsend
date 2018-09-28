@@ -1,2 +1,5 @@
 # hapi-jsend
-A Hapi.js plugin to format responses in JSend
+A [Hapi.js][Hapi] plugin to format responses in [JSend][JSend]
+
+[Hapi]: https://hapijs.com/
+[JSend]: https://labs.omniti.com/labs/jsend
