@@ -1,7 +1,6 @@
 'use strict';
 /* $lab:coverage:off$ */
 const Hapi = require('hapi');
-const Joi = require('joi');
 
 
 // initialize the Hapi Server instance

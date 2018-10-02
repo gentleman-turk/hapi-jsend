@@ -34,7 +34,9 @@
   "homepage": "https://github.com/gentleman-turk/hapi-jsend",
   "readme": "https://github.com/gentleman-turk/hapi-jsend#readme",
   "dependencies": {
-    "hapi": "^17.0.0"
+    "hapi": "^17.0.0",
+    "hoek": "~5.0.0",
+    "boom": "~7.0.0"
   },
   "devDependencies": {
     "lab": "^16.0.0",

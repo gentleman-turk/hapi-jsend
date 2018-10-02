@@ -144,7 +144,7 @@ Both of the extensions described above are "opt-in" since they are non-standard.
 ```json
 {
     "attachHttpStatusCode": true,
-    "extendErrorResponse": true
+    "extendFailResponse": true
 }
 ```
 
@@ -155,7 +155,7 @@ Both of the extensions described above are "opt-in" since they are non-standard.
         plugin: require('hapi-jsend'),
         options: {
             attachHttpStatusCode: true,
-            extendErrorResponse: true
+            extendFailResponse: true
         }
     });
 ```
