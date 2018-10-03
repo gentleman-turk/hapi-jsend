@@ -35,11 +35,6 @@ exports.plugin = {
                 return h.continue;
             }
 
-            // Handle Proxy Responses
-            if (request.response.variety === 'stream') {
-                return h.continue;
-            }
-
             const requestOptions = Hoek.applyToDefaults(internals.defaults, request.route.settings.plugins.hapiJSend);
 
             // route configured to optOut
@@ -96,3 +91,5 @@ exports.plugin = {
  */
 exports.plugin.pkg = require('./package.json'); // hapi requires attributes for a plugin.
 // also see: http://hapijs.com/tutorials/plugins
+
+exports.JSendError = require('./lib/JSendError');
