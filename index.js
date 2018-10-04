@@ -27,15 +27,16 @@ internals.defaults = {
 exports.plugin = {
     register: (server, pluginOptions) => {
 
-        internals.defaults = Hoek.applyToDefaults(internals.defaults, pluginOptions);
+        const serverDefaults = Hoek.applyToDefaults(internals.defaults, pluginOptions);
 
         server.ext('onPreResponse', (request, h) => {
 
-            if (internals.blackListHttpMethods.contains(request.method)) {
+            if (internals.blackListHttpMethods.includes(request.method)) {
                 return h.continue;
             }
 
-            const requestOptions = Hoek.applyToDefaults(internals.defaults, request.route.settings.plugins.hapiJSend);
+            const routeSettings = request.route.settings.plugins.hapiJSend;
+            const requestOptions = routeSettings ? Hoek.applyToDefaults(serverDefaults, routeSettings) : serverDefaults;
 
             // route configured to optOut
             if (requestOptions.optOut) {
@@ -45,10 +46,12 @@ exports.plugin = {
             //error responses
             if (request.response instanceof Error) {
                 const err = request.response;
+                /* $lab:coverage:off$ */
+                // hapi appears to wrap all errors as boom so I don't know how to enter this code.
                 if (!err.isBoom) {
                     Boom.boomify(err, { isJSend: true, status: 'error' });
                 }
-
+                /* $lab:coverage:on$ */
                 else if (!err.isJSend) {
                     err.isJSend = true;
                     if (err.output.statusCode >= 500) {
@@ -59,25 +62,45 @@ exports.plugin = {
                     }
                 }
 
-                request.response.output.payload.status = err.status;
-                if (err.status === 'error' || requestOptions.extendFailResponse) {
-                    request.response.output.payload.code = err.code;
+                if (err.status === 'fail') {
+                    request.response.output.payload.data = {
+                        error: request.response.output.payload.error,
+                        message: request.response.output.payload.message
+                    };
                 }
 
-                if (requestOptions.attachHttpStatusCode) {
-                    request.resposne.output.payload.statusCode = err.output.statusCode;
+                request.response.output.payload.status = err.status;
+                delete request.response.output.payload.error;
+                if (err.status === 'error' || requestOptions.extendFailResponse) {
+                    if (err.hasOwnProperty('code')) {
+                        request.response.output.payload.code = err.code;
+                    }
+                }
+                else {
+                    delete request.response.output.payload.message;
+                }
+
+                if (!requestOptions.attachHttpStatusCode) {
+                    delete request.response.output.payload.statusCode;
                 }
 
                 return h.continue;
             }
 
-            //json responses
-            if (request.response instanceof Object && request.response._contentType === 'application/json') {
+            if (request.response._contentType === 'application/json') {
                 const jsendPayload = Hoek.clone(request.response.source);
                 request.response.source = { data: jsendPayload };
-                request.response.source.status = 'success';
-                request.response.source.statusCode = request.response.statusCode;
+            }
+            else if (typeof request.response.source === 'string') {
+                request.response.source = { data: request.response.source };
+            }
+            else {
                 return h.continue;
+            }
+
+            request.response.source.status = 'success';
+            if (requestOptions.attachHttpStatusCode) {
+                request.response.source.statusCode = request.response.statusCode;
             }
 
             return h.continue;
