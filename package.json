@@ -1,6 +1,6 @@
 {
   "name": "hapi-jsend",
-  "version": "0.0.0-alpha.1",
+  "version": "0.0.0-alpha.3",
   "description": "Format responses from hapi into JSend format.",
   "main": "index.js",
   "scripts": {
